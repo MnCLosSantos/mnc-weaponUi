@@ -18,7 +18,7 @@ QB-Weapons is a weapon management script for the QB-Core framework in FiveM. It 
 ## Installation
 
 1. **Clone or Download the Repository**:
-   - Clone this repository or download the ZIP file and extract it into your FiveM server's `resources` directory.
+   - Clone this repository or download the ZIP file and extract it into your FiveM server's `resources` directory making sure to rename "qb-weapons" and replace the original "qb-weapons" completely.
 
 2. **Add to Server Configuration**:
    - Add `ensure qb-weapons` to your `server.cfg` file to ensure the script loads.
@@ -31,14 +31,12 @@ QB-Weapons is a weapon management script for the QB-Core framework in FiveM. It 
    - Verify that these resources are running before `qb-weapons`.
 
 4. **Configure the Script**:
-   - Edit the `config.lua` file (not included in this artifact but assumed to exist) to set up:
+   - Edit the `config.lua` file to set up:
      - `Config.WeaponRepairPoints`: Coordinates and settings for weapon repair locations.
      - `Config.WeaponRepairCosts`: Repair costs by weapon class (e.g., pistol, smg).
-     - `Config.AmmoTypes`: Mapping of ammo items to ammo types and amounts (e.g., `{ ['pistol_ammo'] = { ammoType = 'AMMO_PISTOL', amount = 30 } }`).
      - `Config.DurabilityMultiplier`: Durability reduction rates for each weapon.
      - `Config.DurabilityBlockedWeapons`: List of weapons exempt from durability reduction.
      - `Config.Throwables`: List of throwable weapons (e.g., grenades).
-     - `WeaponAttachments`: Attachment configurations (e.g., `clip_attachment`, `drum_attachment`) with weapon-specific components and clip size multipliers.
 
 5. **Restart the Server**:
    - Restart your FiveM server or use `refresh` followed by `start qb-weapons` to load the script.
