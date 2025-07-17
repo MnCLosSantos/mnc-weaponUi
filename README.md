@@ -1,4 +1,5 @@
 # mnc-qb-weapons-replacement
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/416f5d50-1367-41fb-81e4-3c1b40314b95" />
 
 QB-Weapons is a weapon management script for the QB-Core framework in FiveM. It handles weapon equipping, ammo management, reloading, unloading, attachment application, tints, and weapon repair functionality. The script ensures that weapon clip sizes are adjusted based on attachments (e.g., extended or drum magazines) and provides a robust system for managing weapon durability and inventory interactions.
 
