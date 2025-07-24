@@ -5,6 +5,16 @@ local CurrentWeaponData, CanShoot, MultiplierAmount, currentWeapon = {}, true, 0
 
 -- Handlers
 
+AddEventHandler('onResourceStart', function(resourceName)
+    if GetCurrentResourceName() == resourceName then
+        SetNuiFocus(false, false)
+        SendNUIMessage({
+            type = 'updateWeaponHud',
+            show = false
+        })
+    end
+end)
+
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     PlayerData = QBCore.Functions.GetPlayerData()
     QBCore.Functions.TriggerCallback('qb-weapons:server:GetConfig', function(RepairPoints)
@@ -20,6 +30,10 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
         Config.WeaponRepairPoints[k].IsRepairing = false
         Config.WeaponRepairPoints[k].RepairingData = {}
     end
+    SendNUIMessage({
+        type = 'updateWeaponHud',
+        show = false
+    })
 end)
 
 -- Functions
@@ -39,29 +53,74 @@ local function DrawText3Ds(x, y, z, text)
     ClearDrawOrigin()
 end
 
+local function GetWeaponClass(weaponName)
+    return Config.WeaponClasses[weaponName] or 1
+end
+
 local function GetEffectiveClipSize(weapon, weaponData)
-    local baseClipSize = QBCore.Shared.Weapons[weapon].clipSize or 30
+    local weaponName = QBCore.Shared.Weapons[weapon].name
+    local clipConfig = Config.WeaponClipSizes[weaponName]
+    local baseClipSize = clipConfig and clipConfig.baseClipSize or 1 -- Default to 1 if not defined
     local attachments = weaponData.info and weaponData.info.attachments or {}
     local clipSize = baseClipSize
-    print("Client: GetEffectiveClipSize for", QBCore.Shared.Weapons[weapon].name, "Base Clip Size:", baseClipSize, "Attachments:", json.encode(attachments))
-    
-    -- Check if WeaponAttachments is defined
+
+    print("Client: GetEffectiveClipSize for", weaponName, "Base Clip Size:", baseClipSize, "Attachments:", json.encode(attachments))
+
     if not WeaponAttachments then
         print("Client: Warning - WeaponAttachments not defined, returning base clip size")
         return clipSize
     end
-    
+
+    local hasClipAttachment = false
+    local hasDrumAttachment = false
     for _, attachment in pairs(attachments) do
-        if WeaponAttachments.clip_attachment and WeaponAttachments.clip_attachment[QBCore.Shared.Weapons[weapon].name] == attachment.component then
-            clipSize = math.floor(baseClipSize * 1.5) -- Extended magazine: 1.5x
-            print("Client: Applied clip_attachment, New Clip Size:", clipSize)
-        elseif WeaponAttachments.drum_attachment and WeaponAttachments.drum_attachment[QBCore.Shared.Weapons[weapon].name] == attachment.component then
-            clipSize = math.floor(baseClipSize * 2.0) -- Drum magazine: 2x
-            print("Client: Applied drum_attachment, New Clip Size:", clipSize)
+        if WeaponAttachments.clip_attachment and WeaponAttachments.clip_attachment[weaponName] == attachment.component then
+            hasClipAttachment = true
+            print("Client: Detected clip_attachment for", weaponName)
+        elseif WeaponAttachments.drum_attachment and WeaponAttachments.drum_attachment[weaponName] == attachment.component then
+            hasDrumAttachment = true
+            print("Client: Detected drum_attachment for", weaponName)
         end
     end
-    print("Client: Final Clip Size for", QBCore.Shared.Weapons[weapon].name, ":", clipSize)
+
+    if hasDrumAttachment and clipConfig and clipConfig.drumMultiplier then
+        clipSize = math.floor(baseClipSize * clipConfig.drumMultiplier)
+        print("Client: Applied drum_attachment, Multiplier:", clipConfig.drumMultiplier, "New Clip Size:", clipSize)
+    elseif hasClipAttachment and clipConfig and clipConfig.clipMultiplier then
+        clipSize = math.floor(baseClipSize * clipConfig.clipMultiplier)
+        print("Client: Applied clip_attachment, Multiplier:", clipConfig.clipMultiplier, "New Clip Size:", clipSize)
+    end
+
+    print("Client: Final Clip Size for", weaponName, ":", clipSize)
     return clipSize
+end
+
+local function UpdateWeaponHud()
+    local ped = PlayerPedId()
+    local weaponHash = GetSelectedPedWeapon(ped)
+    if weaponHash == `WEAPON_UNARMED` or not CurrentWeaponData or not CurrentWeaponData.name then
+        SendNUIMessage({
+            type = 'updateWeaponHud',
+            show = false
+        })
+        return
+    end
+    local weaponName = QBCore.Shared.Weapons[weaponHash].name
+    local weaponLabel = QBCore.Shared.Weapons[weaponHash].label or weaponName
+    local weaponClass = GetWeaponClass(weaponName)
+    local ammo = GetAmmoInPedWeapon(ped, weaponHash)
+    local clipSize = GetEffectiveClipSize(weaponHash, CurrentWeaponData)
+    local iconPath = 'nui://qb-inventory/html/images/' .. weaponName .. '.png'
+    
+    SendNUIMessage({
+        type = 'updateWeaponHud',
+        show = true,
+        icon = iconPath,
+        name = weaponLabel,
+        class = weaponClass,
+        ammo = ammo,
+        clipSize = clipSize
+    })
 end
 
 -- Events
@@ -74,6 +133,7 @@ end)
 RegisterNetEvent('qb-weapons:client:EquipTint', function(weapon, tint)
     local player = PlayerPedId()
     SetPedWeaponTintIndex(player, weapon, tint)
+    UpdateWeaponHud()
 end)
 
 RegisterNetEvent('qb-weapons:client:SetCurrentWeapon', function(data, bool)
@@ -85,6 +145,7 @@ RegisterNetEvent('qb-weapons:client:SetCurrentWeapon', function(data, bool)
         print("Client: Cleared CurrentWeaponData")
     end
     CanShoot = bool
+    UpdateWeaponHud()
 end)
 
 RegisterNetEvent('qb-weapons:client:SetWeaponQuality', function(amount)
@@ -133,13 +194,14 @@ RegisterNetEvent('qb-weapons:client:AddAmmo', function(ammoType, amount, itemDat
         end
 
         local newAmmo = math.min(total + amount, clipSize)
-        AddAmmoToPed(ped, weapon, newAmmo - total)
+        SetPedAmmo(ped, weapon, newAmmo)
         TaskReloadWeapon(ped, false)
         TriggerServerEvent('qb-weapons:server:UpdateWeaponAmmo', CurrentWeaponData, newAmmo)
         TriggerServerEvent('qb-weapons:server:removeWeaponAmmoItems', itemData, 1)
         TriggerEvent('qb-inventory:client:ItemBox', QBCore.Shared.Items[itemData.name], 'remove')
         TriggerEvent('QBCore:Notify', Lang:t('success.reloaded'), 'success')
         print("Client: Reloaded weapon via AddAmmo, New Ammo:", newAmmo, "Clip Size:", clipSize)
+        UpdateWeaponHud()
     end, function()
         QBCore.Functions.Notify(Lang:t('error.canceled'), 'error')
     end)
@@ -202,6 +264,7 @@ RegisterNetEvent('qb-weapons:client:UseWeapon', function(weaponData, shootbool)
 
         currentWeapon = weaponName
     end
+    UpdateWeaponHud()
 end)
 
 RegisterNetEvent('qb-weapons:client:CheckWeapon', function(weaponName)
@@ -211,6 +274,117 @@ RegisterNetEvent('qb-weapons:client:CheckWeapon', function(weaponName)
     SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
     RemoveAllPedWeapons(ped, true)
     currentWeapon = nil
+    UpdateWeaponHud()
+end)
+
+RegisterNetEvent('qb-weapons:client:EquipAttachment', function(weaponData, attachment, isRemoving)
+    local ped = PlayerPedId()
+    local weaponHash = GetSelectedPedWeapon(ped)
+    local weaponName = QBCore.Shared.Weapons[weaponHash].name
+
+    if not CurrentWeaponData or CurrentWeaponData.name ~= weaponData.name or weaponHash == `WEAPON_UNARMED` then
+        QBCore.Functions.Notify('No valid weapon equipped for this attachment', 'error')
+        print("Client: Invalid weapon or no weapon equipped for attachment:", weaponData.name, "Current Weapon:", CurrentWeaponData.name)
+        return
+    end
+
+    -- Check if the attachment is a clip or drum attachment
+    local isClipAttachment = (WeaponAttachments.clip_attachment and WeaponAttachments.clip_attachment[weaponName] == attachment) or
+                             (WeaponAttachments.drum_attachment and WeaponAttachments.drum_attachment[weaponName] == attachment)
+
+    -- Get current ammo and clip size
+    local currentAmmo = GetAmmoInPedWeapon(ped, weaponHash)
+    local oldClipSize = GetEffectiveClipSize(weaponHash, CurrentWeaponData)
+    print("Client: Current Ammo:", currentAmmo, "Old Clip Size:", oldClipSize, "Attachment:", attachment, "Is Removing:", isRemoving)
+
+    if isRemoving and isClipAttachment then
+        -- Unload ammo to inventory, capped at current clip size
+        if currentAmmo > 0 then
+            TriggerServerEvent('qb-weapons:server:UnloadWeapon', CurrentWeaponData, oldClipSize)
+            print("Client: Unloaded ammo for", weaponName, "Ammo:", currentAmmo, "Capped at Clip Size:", oldClipSize)
+        end
+
+        -- Unequip the weapon
+        SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+        RemoveAllPedWeapons(ped, true)
+        currentWeapon = nil
+        CurrentWeaponData = {}
+        TriggerEvent('qb-weapons:client:SetCurrentWeapon', nil, false)
+        print("Client: Unequipped weapon", weaponName)
+
+        -- Reset client-side ammo
+        SetPedAmmo(ped, weaponHash, 0)
+    end
+
+    -- Update attachments in weaponData
+    if not weaponData.info then weaponData.info = {} end
+    if not weaponData.info.attachments then weaponData.info.attachments = {} end
+
+    if isRemoving then
+        -- Remove the attachment
+        for i, att in ipairs(weaponData.info.attachments) do
+            if att.component == attachment then
+                table.remove(weaponData.info.attachments, i)
+                break
+            end
+        end
+        RemoveWeaponComponentFromPed(ped, weaponHash, joaat(attachment))
+        print("Client: Removed attachment", attachment, "from", weaponName)
+    else
+        -- Add the attachment
+        table.insert(weaponData.info.attachments, { component = attachment })
+        GiveWeaponComponentToPed(ped, weaponHash, joaat(attachment))
+        print("Client: Added attachment", attachment, "to", weaponName)
+    end
+
+    -- Reequip the weapon if it was a clip attachment
+    if isClipAttachment then
+        -- Update CurrentWeaponData
+        CurrentWeaponData = weaponData
+        TriggerEvent('qb-weapons:client:SetCurrentWeapon', weaponData, CanShoot)
+
+        -- Calculate new clip size
+        local newClipSize = GetEffectiveClipSize(weaponHash, weaponData)
+        local newAmmo = isRemoving and 0 or math.min(currentAmmo, newClipSize) -- Retain ammo when equipping, cap at new clip size
+
+        -- Store the new clip size in weaponData.info
+        weaponData.info.clipSize = newClipSize
+
+        -- Re-equip the weapon with updated ammo and clip size
+        RemoveAllPedWeapons(ped, true)
+        GiveWeaponToPed(ped, weaponHash, newAmmo, false, false)
+        SetPedAmmo(ped, weaponHash, newAmmo)
+        SetCurrentPedWeapon(ped, weaponHash, true)
+
+        -- Reapply all attachments
+        if weaponData.info.attachments then
+            for _, att in pairs(weaponData.info.attachments) do
+                GiveWeaponComponentToPed(ped, weaponHash, joaat(att.component))
+            end
+        end
+
+        -- Reapply tint if present
+        if weaponData.info.tint then
+            SetPedWeaponTintIndex(ped, weaponHash, weaponData.info.tint)
+        end
+
+        -- Update server with new ammo count and clip size
+        TriggerServerEvent('qb-weapons:server:UpdateWeaponAmmo', weaponData, newAmmo)
+        print("Client: Reequipped weapon", weaponName, "New Clip Size:", newClipSize, "New Ammo:", newAmmo)
+
+        QBCore.Functions.Notify('Attachment ' .. (isRemoving and 'removed' or 'equipped') .. ', clip size updated to ' .. newClipSize .. (isRemoving and ', ammo unloaded' or ''), 'success')
+    else
+        -- For non-clip attachments, just apply/remove the attachment
+        if isRemoving then
+            RemoveWeaponComponentFromPed(ped, weaponHash, joaat(attachment))
+        else
+            GiveWeaponComponentToPed(ped, weaponHash, joaat(attachment))
+        end
+        CurrentWeaponData = weaponData
+    end
+
+    -- Update the HUD
+    UpdateWeaponHud()
 end)
 
 -- Threads
@@ -230,6 +404,7 @@ CreateThread(function()
                 TriggerServerEvent('qb-weapons:server:UpdateWeaponQuality', CurrentWeaponData, MultiplierAmount)
                 MultiplierAmount = 0
             end
+            UpdateWeaponHud()
         end
         Wait(0)
     end
@@ -249,11 +424,11 @@ CreateThread(function()
                                 MultiplierAmount += 1
                             end, weapon)
                             Wait(200)
+                            UpdateWeaponHud()
                         end
                     else
                         if weapon ~= `WEAPON_UNARMED` then
                             TriggerEvent('qb-weapons:client:CheckWeapon', QBCore.Shared.Weapons[weapon]['name'])
-                            QBCore.Functions.Notify(Lang:t('error.weapon_broken') or 'Weapon is broken', 'error')
                             MultiplierAmount = 0
                         end
                     end
@@ -266,69 +441,82 @@ CreateThread(function()
                         if not ammoType then
                             QBCore.Functions.Notify('Weapon has no valid ammo type', 'error')
                             print("Client: No valid ammo type for weapon:", QBCore.Shared.Weapons[weapon].name)
-                            return
-                        end
-                        local currentAmmo = GetAmmoInPedWeapon(ped, weapon)
-                        local clipSize = GetEffectiveClipSize(weapon, CurrentWeaponData)
-                        print("Client: Weapon:", QBCore.Shared.Weapons[weapon].name, "Ammo Type:", ammoType, "Current Ammo:", currentAmmo, "Clip Size:", clipSize)
-                        if currentAmmo < clipSize then
-                            -- Find the corresponding ammo item name
-                            local itemName = nil
-                            for ammoItem, properties in pairs(Config.AmmoTypes) do
-                                if properties.ammoType == ammoType then
-                                    itemName = ammoItem
-                                    break
+                        else
+                            local currentAmmo = GetAmmoInPedWeapon(ped, weapon)
+                            local clipSize = GetEffectiveClipSize(weapon, CurrentWeaponData)
+                            print("Client: Weapon:", QBCore.Shared.Weapons[weapon].name, "Ammo Type:", ammoType, "Current Ammo:", currentAmmo, "Clip Size:", clipSize)
+                            if currentAmmo < clipSize then
+                                -- Find the corresponding ammo item name
+                                local itemName = nil
+                                for ammoItem, properties in pairs(Config.AmmoTypes) do
+                                    if properties.ammoType == ammoType then
+                                        itemName = ammoItem
+                                        break
+                                    end
                                 end
-                            end
-                            if not itemName then
-                                print("Client: No ammo item found for ammo type:", ammoType)
-                                QBCore.Functions.Notify('No ammo item configured for this weapon', 'error')
-                                return
-                            end
-                            -- Calculate ammo needed and items required
-                            local configAmount = Config.AmmoTypes[itemName].amount or 1
-                            local ammoNeeded = clipSize - currentAmmo
-                            local itemsNeeded = math.ceil(ammoNeeded / configAmount)
-                            print("Client: Item Name:", itemName, "Config Amount:", configAmount, "Ammo Needed:", ammoNeeded, "Items Needed:", itemsNeeded)
-                            QBCore.Functions.TriggerCallback('qb-weapons:server:HasEnoughAmmoItems', function(hasEnough, itemData, itemCount)
-                                print("Client: Has Enough Items:", hasEnough, "Item Data:", itemData and (itemData.name .. " Slot: " .. itemData.slot .. " Count: " .. itemCount) or "nil", "Item Count:", itemCount)
-                                if itemCount > 0 then
-                                    -- Calculate ammo to add and items to use
-                                    local itemsToUse = math.min(itemCount, itemsNeeded)
-                                    local ammoToAdd = math.min(itemsToUse * configAmount, ammoNeeded)
-                                    print("Client: Items Available:", itemCount, "Items To Use:", itemsToUse, "Ammo To Add:", ammoToAdd, "Clip Size Cap:", clipSize)
-                                    QBCore.Functions.Progressbar('reloading_weapon', 'Reloading...', Config.ReloadTime, false, true, {
-                                        disableMovement = false,
-                                        disableCarMovement = false,
-                                        disableMouse = false,
-                                        disableCombat = true
-                                    }, {}, {}, {}, function()
-                                        weapon = GetSelectedPedWeapon(ped)
-                                        if QBCore.Shared.Weapons[weapon]?.ammotype == ammoType then
-                                            local newAmmo = currentAmmo + ammoToAdd
-                                            SetPedAmmo(ped, weapon, newAmmo)
-                                            TaskReloadWeapon(ped, false)
-                                            TriggerServerEvent('qb-weapons:server:UpdateWeaponAmmo', CurrentWeaponData, newAmmo)
-                                            TriggerServerEvent('qb-weapons:server:removeWeaponAmmoItems', itemData, itemsToUse)
-                                            TriggerEvent('qb-inventory:client:ItemBox', QBCore.Shared.Items[itemData.name], 'remove', itemsToUse)
-                                            QBCore.Functions.Notify('Weapon reloaded with ' .. ammoToAdd .. ' rounds', 'success')
-                                            print("Client: Reloaded weapon, added:", ammoToAdd, "New Ammo:", newAmmo, "Items Used:", itemsToUse, "Clip Size:", clipSize)
-                                        else
-                                            QBCore.Functions.Notify('Wrong weapon selected', 'error')
-                                            print("Client: Wrong weapon selected during reload")
-                                        end
-                                    end, function()
-                                        QBCore.Functions.Notify('Reload canceled', 'error')
-                                        print("Client: Reload canceled")
-                                    end)
+                                if not itemName then
+                                    print("Client: No ammo item found for ammo type:", ammoType)
+                                    QBCore.Functions.Notify('No ammo item configured for this weapon', 'error')
                                 else
-                                    QBCore.Functions.Notify('No ammo for this weapon', 'error')
-                                    print("Client: No ammo items found for:", itemName)
+                                    -- Calculate ammo needed and items required
+                                    local configAmount = Config.AmmoTypes[itemName].amount or 1
+                                    local ammoNeeded = clipSize - currentAmmo
+                                    local itemsNeeded = math.ceil(ammoNeeded / configAmount)
+                                    print("Client: Item Name:", itemName, "Config Amount:", configAmount, "Ammo Needed:", ammoNeeded, "Items Needed:", itemsNeeded)
+                                    QBCore.Functions.TriggerCallback('qb-weapons:server:HasEnoughAmmoItems', function(hasEnough, itemData, itemCount)
+                                        print("Client: Has Enough Items:", hasEnough, "Item Data:", itemData and (itemData.name .. " Slot: " .. itemData.slot .. " Count: " .. itemCount) or "nil", "Item Count:", itemCount)
+                                        if itemCount > 0 then
+                                            -- Calculate ammo to add and items to use
+                                            local itemsToUse = math.min(itemCount, itemsNeeded)
+                                            local ammoToAdd = math.min(itemsToUse * configAmount, ammoNeeded)
+                                            print("Client: Items Available:", itemCount, "Items To Use:", itemsToUse, "Ammo To Add:", ammoToAdd, "Clip Size Cap:", clipSize)
+                                            QBCore.Functions.Progressbar('reloading_weapon', 'Reloading...', Config.ReloadTime, false, true, {
+                                                disableMovement = false,
+                                                disableCarMovement = false,
+                                                disableMouse = false,
+                                                disableCombat = true
+                                            }, {}, {}, {}, function()
+                                                weapon = GetSelectedPedWeapon(ped)
+                                                if QBCore.Shared.Weapons[weapon]?.ammotype ~= ammoType then
+                                                    QBCore.Functions.Notify('Wrong weapon selected', 'error')
+                                                    print("Client: Wrong weapon selected during reload")
+                                                else
+                                                    local newAmmo = currentAmmo + ammoToAdd
+                                                    RemoveAllPedWeapons(ped, true)
+                                                    GiveWeaponToPed(ped, weapon, newAmmo, false, false)
+                                                    SetPedAmmo(ped, weapon, newAmmo)
+                                                    SetCurrentPedWeapon(ped, weapon, true)
+                                                    -- Reapply attachments
+                                                    if CurrentWeaponData.info.attachments then
+                                                        for _, att in pairs(CurrentWeaponData.info.attachments) do
+                                                            GiveWeaponComponentToPed(ped, weapon, joaat(att.component))
+                                                        end
+                                                    end
+                                                    -- Reapply tint
+                                                    if CurrentWeaponData.info.tint then
+                                                        SetPedWeaponTintIndex(ped, weapon, CurrentWeaponData.info.tint)
+                                                    end
+                                                    TriggerServerEvent('qb-weapons:server:UpdateWeaponAmmo', CurrentWeaponData, newAmmo)
+                                                    TriggerServerEvent('qb-weapons:server:removeWeaponAmmoItems', itemData, itemsToUse)
+                                                    TriggerEvent('qb-inventory:client:ItemBox', QBCore.Shared.Items[itemData.name], 'remove', itemsToUse)
+                                                    QBCore.Functions.Notify('Weapon reloaded with ' .. ammoToAdd .. ' rounds', 'success')
+                                                    print("Client: Reloaded weapon, added:", ammoToAdd, "New Ammo:", newAmmo, "Items Used:", itemsToUse, "Clip Size:", clipSize)
+                                                    UpdateWeaponHud()
+                                                end
+                                            end, function()
+                                                QBCore.Functions.Notify('Reload canceled', 'error')
+                                                print("Client: Reload canceled")
+                                            end)
+                                        else
+                                            QBCore.Functions.Notify('No ammo for this weapon', 'error')
+                                            print("Client: No ammo items found for:", itemName)
+                                        end
+                                    end, itemName, itemsNeeded)
                                 end
-                            end, itemName, itemsNeeded)
-                        elseif currentAmmo >= clipSize then
-                            QBCore.Functions.Notify('Weapon already fully loaded', 'error')
-                            print("Client: Weapon already fully loaded, Current Ammo:", currentAmmo, "Clip Size:", clipSize)
+                            elseif currentAmmo >= clipSize then
+                                QBCore.Functions.Notify('Weapon already fully loaded', 'error')
+                                print("Client: Weapon already fully loaded, Current Ammo:", currentAmmo, "Clip Size:", clipSize)
+                            end
                         end
                     end
                 end
@@ -336,8 +524,33 @@ CreateThread(function()
                 if IsControlJustPressed(0, 199) then -- 199 is the keycode for 'P'
                     local weapon = GetSelectedPedWeapon(ped)
                     if weapon and weapon ~= `WEAPON_UNARMED` and QBCore.Shared.Weapons[weapon] then
-                        TriggerServerEvent('qb-weapons:server:UnloadWeapon', CurrentWeaponData)
-                        print("Client: Unload weapon triggered for:", CurrentWeaponData.name)
+                        local clipSize = GetEffectiveClipSize(weapon, CurrentWeaponData)
+                        local currentAmmo = GetAmmoInPedWeapon(ped, weapon)
+                        if currentAmmo <= 0 then
+                            QBCore.Functions.Notify('No ammo to unload', 'error')
+                            print("Client: No ammo to unload for weapon:", QBCore.Shared.Weapons[weapon].name)
+                        else
+                            QBCore.Functions.Progressbar('unloading_weapon', 'Unloading...', Config.ReloadTime, false, true, {
+                                disableMovement = false,
+                                disableCarMovement = false,
+                                disableMouse = false,
+                                disableCombat = true
+                            }, {}, {}, {}, function()
+                                weapon = GetSelectedPedWeapon(ped) -- Re-check weapon
+                                if weapon and weapon ~= `WEAPON_UNARMED` and QBCore.Shared.Weapons[weapon] then
+                                    TriggerServerEvent('qb-weapons:server:UnloadWeapon', CurrentWeaponData, clipSize)
+                                    print("Client: Unload weapon triggered for:", CurrentWeaponData.name, "Clip Size:", clipSize, "Current Ammo:", currentAmmo)
+                                    SetPedAmmo(ped, weapon, 0) -- Reset ammo on client
+                                    UpdateWeaponHud()
+                                else
+                                    QBCore.Functions.Notify('Invalid weapon selected', 'error')
+                                    print("Client: Invalid weapon during unload")
+                                end
+                            end, function()
+                                QBCore.Functions.Notify('Unload canceled', 'error')
+                                print("Client: Unload canceled")
+                            end)
+                        end
                     end
                 end
             end
@@ -377,6 +590,7 @@ CreateThread(function()
                                         QBCore.Functions.TriggerCallback('qb-weapons:server:RepairWeapon', function(HasMoney)
                                             if HasMoney then
                                                 CurrentWeaponData = {}
+                                                UpdateWeaponHud()
                                             end
                                         end, k, CurrentWeaponData)
                                     end

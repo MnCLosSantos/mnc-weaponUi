@@ -227,18 +227,20 @@ RegisterNetEvent('qb-weapons:server:removeWeaponAmmoItems', function(item, items
     end
 end)
 
-RegisterNetEvent('qb-weapons:server:UnloadWeapon', function(weaponData)
+RegisterNetEvent('qb-weapons:server:UnloadWeapon', function(weaponData, clipSize)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then 
         print("Server: No player found for source:", src)
+        TriggerClientEvent('QBCore:Notify', src, 'Player not found', 'error')
         return 
     end
-    if not weaponData or not weaponData.name or not weaponData.slot then
-        print("Server: Invalid weapon data for unloading:", weaponData)
+    if not weaponData or not weaponData.name or not weaponData.slot or not clipSize then
+        print("Server: Invalid weapon data or clipSize for unloading:", weaponData, "ClipSize:", clipSize)
         TriggerClientEvent('QBCore:Notify', src, 'Invalid weapon data', 'error')
         return
     end
+    print("Server: Processing unload for weapon:", weaponData.name, "Slot:", weaponData.slot, "ClipSize:", clipSize)
     local weaponSlot = Player.PlayerData.items[weaponData.slot]
     if not weaponSlot or weaponSlot.name ~= weaponData.name then
         print("Server: Weapon not found in slot:", weaponData.slot, "for weapon:", weaponData.name)
@@ -255,6 +257,8 @@ RegisterNetEvent('qb-weapons:server:UnloadWeapon', function(weaponData)
         TriggerClientEvent('QBCore:Notify', src, 'No ammo to unload', 'error')
         return
     end
+    -- Cap ammo to current clip size
+    local ammoToReturn = math.min(currentAmmo, clipSize)
     -- Find corresponding ammo item
     local itemName = nil
     for ammoItem, properties in pairs(Config.AmmoTypes) do
@@ -270,16 +274,25 @@ RegisterNetEvent('qb-weapons:server:UnloadWeapon', function(weaponData)
     end
     -- Calculate items to return
     local configAmount = Config.AmmoTypes[itemName].amount or 1
-    local itemsToReturn = math.ceil(currentAmmo / configAmount)
-    -- Reset ammo
+    local itemsToReturn = math.ceil(ammoToReturn / configAmount)
+    print("Server: Unloading", ammoToReturn, "ammo, returning", itemsToReturn, "items of", itemName)
+    -- Reset ammo in inventory
     weaponSlot.info.ammo = 0
     Player.Functions.SetInventory(Player.PlayerData.items, true)
     -- Return ammo items to inventory
-    exports['qb-inventory']:AddItem(src, itemName, itemsToReturn, false, false, 'qb-weapons:server:UnloadWeapon')
-    TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[itemName], 'add', itemsToReturn)
-    print("Server: Unloaded weapon:", weaponData.name, "Returned", itemsToReturn, "items of", itemName)
-    TriggerClientEvent('qb-weapons:client:UseWeapon', src, weaponData, false)
-    TriggerClientEvent('QBCore:Notify', src, 'Weapon unloaded, ammo returned', 'success')
+    if exports['qb-inventory']:AddItem(src, itemName, itemsToReturn, false, false, 'qb-weapons:server:UnloadWeapon') then
+        TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[itemName], 'add', itemsToReturn)
+        print("Server: Successfully unloaded weapon:", weaponData.name, "Returned", itemsToReturn, "items of", itemName, "Ammo:", ammoToReturn)
+        TriggerClientEvent('QBCore:Notify', src, 'Weapon unloaded, ' .. ammoToReturn .. ' rounds returned', 'success')
+        -- Update client with new weapon state
+        TriggerClientEvent('qb-weapons:client:UseWeapon', src, weaponData, false)
+    else
+        -- Revert ammo if inventory isフル
+        weaponSlot.info.ammo = currentAmmo
+        Player.Functions.SetInventory(Player.PlayerData.items, true)
+        print("Server: Failed to unload weapon:", weaponData.name, "Inventory full")
+        TriggerClientEvent('QBCore:Notify', src, 'Cannot unload ammo, inventory full', 'error')
+    end
 end)
 
 -- Commands
@@ -380,32 +393,44 @@ local function DoesWeaponTakeWeaponComponent(item, weaponName)
 end
 
 local function EquipWeaponAttachment(src, item)
-    local shouldRemove = false
     local ped = GetPlayerPed(src)
     local selectedWeaponHash = GetSelectedPedWeapon(ped)
-    if selectedWeaponHash == `WEAPON_UNARMED` then return end
+    if selectedWeaponHash == `WEAPON_UNARMED` then 
+        TriggerClientEvent('QBCore:Notify', src, 'No weapon selected.', 'error')
+        return 
+    end
     local weaponName = QBCore.Shared.Weapons[selectedWeaponHash].name
-    if not weaponName then return end
+    if not weaponName then 
+        TriggerClientEvent('QBCore:Notify', src, 'Invalid weapon.', 'error')
+        return 
+    end
     local attachmentComponent = DoesWeaponTakeWeaponComponent(item, weaponName)
     if not attachmentComponent then
         TriggerClientEvent('QBCore:Notify', src, 'This attachment is not valid for the selected weapon.', 'error')
         return
     end
     local Player = QBCore.Functions.GetPlayer(src)
-    if not Player then return end
+    if not Player then 
+        TriggerClientEvent('QBCore:Notify', src, 'Player not found.', 'error')
+        return 
+    end
     local weaponSlot, weaponSlotIndex = GetWeaponSlotByName(Player.PlayerData.items, weaponName)
-    if not weaponSlot then return end
+    if not weaponSlot then 
+        TriggerClientEvent('QBCore:Notify', src, 'Weapon not found in inventory.', 'error')
+        return 
+    end
+    weaponSlot.info = weaponSlot.info or {}
     weaponSlot.info.attachments = weaponSlot.info.attachments or {}
     local hasAttach, attachIndex = HasAttachment(attachmentComponent, weaponSlot.info.attachments)
+    local shouldRemove = false
     if hasAttach then
-        RemoveWeaponComponentFromPed(ped, selectedWeaponHash, attachmentComponent)
         table.remove(weaponSlot.info.attachments, attachIndex)
     else
         weaponSlot.info.attachments[#weaponSlot.info.attachments + 1] = {
             component = attachmentComponent,
         }
-        GiveWeaponComponentToPed(ped, selectedWeaponHash, attachmentComponent)
         shouldRemove = true
+        TriggerClientEvent('QBCore:Notify', src, 'Attachment equipped.', 'success')
     end
     Player.PlayerData.items[weaponSlotIndex] = weaponSlot
     Player.Functions.SetInventory(Player.PlayerData.items, true)
@@ -413,6 +438,8 @@ local function EquipWeaponAttachment(src, item)
         exports['qb-inventory']:RemoveItem(src, item, 1, false, 'qb-weapons:EquipWeaponAttachment')
         TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'remove')
     end
+    -- Trigger client event for attachment handling
+    TriggerClientEvent('qb-weapons:client:EquipAttachment', src, weaponSlot, attachmentComponent, hasAttach)
 end
 
 for attachmentItem in pairs(WeaponAttachments) do
@@ -435,15 +462,20 @@ QBCore.Functions.CreateCallback('qb-weapons:server:RemoveAttachment', function(s
                 Player.Functions.SetInventory(Player.PlayerData.items, true)
                 exports['qb-inventory']:AddItem(src, AttachmentData.attachment, 1, false, false, 'qb-weapons:server:RemoveAttachment')
                 TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[AttachmentData.attachment], 'add')
-                TriggerClientEvent('QBCore:Notify', src, Lang:t('info.removed_attachment', { value = QBCore.Shared.Items[AttachmentData.attachment].label }) or 'Attachment removed', 'error')
+                TriggerClientEvent('QBCore:Notify', src, Lang:t('info.removed_attachment', { value = QBCore.Shared.Items[AttachmentData.attachment].label }) or 'Attachment removed', 'success')
+                -- Trigger client event for attachment removal
+                TriggerClientEvent('qb-weapons:client:EquipAttachment', src, Inventory[WeaponData.slot], AttachmentComponent, true)
                 cb(Inventory[WeaponData.slot].info.attachments)
             else
+                TriggerClientEvent('QBCore:Notify', src, 'Attachment not found on weapon.', 'error')
                 cb(false)
             end
         else
+            TriggerClientEvent('QBCore:Notify', src, 'No attachments on weapon.', 'error')
             cb(false)
         end
     else
+        TriggerClientEvent('QBCore:Notify', src, 'Weapon not found in inventory.', 'error')
         cb(false)
     end
 end)

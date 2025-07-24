@@ -2,6 +2,223 @@ Config = Config or {}
 
 Config.ReloadTime = 2000
 
+-- Weapon clip sizes
+Config.WeaponClipSizes = {
+    -- Melee
+    weapon_unarmed               = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_dagger                = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_bat                   = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_bottle                = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_crowbar               = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_candycane             = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_flashlight             = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_golfclub              = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_hammer                = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_hatchet               = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_knuckle               = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_knife                 = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_machete               = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_switchblade           = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_nightstick            = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_wrench                = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_battleaxe             = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_poolcue               = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_briefcase             = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_briefcase_02          = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_garbagebag            = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_handcuffs             = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_bread                 = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_stone_hatchet         = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+
+    -- Handguns (Class 1)
+    weapon_pistol                = { baseClipSize = 12, clipMultiplier = 1.5, drumMultiplier = nil }, -- 9mm Pistol (e.g., Glock 17)
+    weapon_pistol_mk2            = { baseClipSize = 12, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_combatpistol          = { baseClipSize = 12, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_appistol              = { baseClipSize = 18, clipMultiplier = 2.0, drumMultiplier = nil }, -- AP Pistol
+    weapon_pistol50              = { baseClipSize = 9, clipMultiplier = 1.5, drumMultiplier = nil }, -- .50 Pistol
+    weapon_snspistol             = { baseClipSize = 6, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_snspistol_mk2         = { baseClipSize = 6, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_heavypistol           = { baseClipSize = 18, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_vintagepistol         = { baseClipSize = 7, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_flaregun              = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_marksmanpistol        = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_revolver              = { baseClipSize = 6, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_revolver_mk2          = { baseClipSize = 6, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_doubleaction          = { baseClipSize = 6, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_raypistol             = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_ceramicpistol         = { baseClipSize = 12, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_navyrevolver          = { baseClipSize = 6, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_gadgetpistol          = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_pistolxm3             = { baseClipSize = 12, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_stungun               = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_stungun_mp            = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+
+    -- Submachine Guns (Class 3)
+    weapon_microsmg              = { baseClipSize = 16, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_smg                   = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_smg_mk2               = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_assaultsmg            = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_combatpdw             = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_machinepistol         = { baseClipSize = 12, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_minismg               = { baseClipSize = 20, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_raycarbine            = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+
+    -- Shotguns (Class 2)
+    weapon_pumpshotgun           = { baseClipSize = 8, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_sawnoffshotgun        = { baseClipSize = 8, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_assaultshotgun        = { baseClipSize = 8, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_bullpupshotgun        = { baseClipSize = 14, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_musket                = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_heavyshotgun          = { baseClipSize = 6, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_dbshotgun             = { baseClipSize = 2, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_autoshotgun           = { baseClipSize = 10, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_pumpshotgun_mk2       = { baseClipSize = 8, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_combatshotgun         = { baseClipSize = 6, clipMultiplier = nil, drumMultiplier = nil },
+
+    -- Assault Rifles (Class 4)
+    weapon_assaultrifle          = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_assaultrifle_mk2      = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_carbinerifle          = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_carbinerifle_mk2      = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_advancedrifle         = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_specialcarbine        = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_bullpuprifle          = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_compactrifle          = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_specialcarbine_mk2    = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_bullpuprifle_mk2      = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_militaryrifle         = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_heavyrifle            = { baseClipSize = 20, clipMultiplier = 1.5, drumMultiplier = nil },
+
+    -- Light Machine Guns (Class 5)
+    weapon_mg                    = { baseClipSize = 54, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_combatmg              = { baseClipSize = 100, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_gusenberg             = { baseClipSize = 30, clipMultiplier = 1.5, drumMultiplier = 2.0 },
+    weapon_combatmg_mk2          = { baseClipSize = 100, clipMultiplier = 1.5, drumMultiplier = nil },
+
+    -- Sniper Rifles (Class 6)
+    weapon_sniperrifle           = { baseClipSize = 10, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_heavysniper           = { baseClipSize = 6, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_marksmanrifle         = { baseClipSize = 8, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_remotesniper          = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_heavysniper_mk2       = { baseClipSize = 6, clipMultiplier = 1.5, drumMultiplier = nil },
+    weapon_marksmanrifle_mk2     = { baseClipSize = 8, clipMultiplier = 1.5, drumMultiplier = nil },
+
+    -- Heavy Weapons (Class 7)
+    weapon_rpg                   = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_grenadelauncher       = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_grenadelauncher_smoke = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_emplauncher           = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_minigun               = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_firework              = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_railgun               = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_hominglauncher        = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_compactlauncher       = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_rayminigun            = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_railgunxm3            = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+
+    -- Throwables
+    weapon_grenade               = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_bzgas                 = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_molotov               = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_stickybomb            = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_proxmine              = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_snowball              = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_pipebomb              = { baseClipSize = 0, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_ball                  = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_smokegrenade          = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_flare                 = { baseClipSize = 1, clipMultiplier = nil, drumMultiplier = nil },
+
+    -- Miscellaneous
+    weapon_petrolcan             = { baseClipSize = 4500, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_fireextinguisher      = { baseClipSize = 4000, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_hazardcan             = { baseClipSize = 4500, clipMultiplier = nil, drumMultiplier = nil },
+    weapon_fertilizercan         = { baseClipSize = 4500, clipMultiplier = nil, drumMultiplier = nil },
+}
+
+Config.WeaponClasses = {
+    -- Handguns class 1
+    weapon_pistol                = 1,
+    weapon_pistol_mk2            = 1,
+    weapon_combatpistol          = 1,
+    weapon_appistol              = 1,
+    weapon_pistol50              = 1,
+    weapon_snspistol             = 1,
+    weapon_heavypistol           = 1,
+    weapon_vintagepistol         = 1,
+    weapon_flaregun              = 1,
+    weapon_marksmanpistol        = 1,
+    weapon_revolver              = 1,
+    weapon_revolver_mk2          = 1,
+    weapon_doubleaction          = 1,
+    weapon_snspistol_mk2         = 1,
+    weapon_raypistol             = 1,
+    weapon_ceramicpistol         = 1,
+    weapon_navyrevolver          = 1,
+    weapon_gadgetpistol          = 1,
+    weapon_pistolxm3             = 1,
+    -- Submachine Guns class 3
+    weapon_microsmg              = 3,
+    weapon_smg                   = 3,
+    weapon_smg_mk2               = 3,
+    weapon_assaultsmg            = 3,
+    weapon_combatpdw             = 3,
+    weapon_machinepistol         = 3,
+    weapon_minismg               = 3,
+    weapon_raycarbine            = 3,
+    -- Shotguns class 2
+    weapon_pumpshotgun           = 2,
+    weapon_sawnoffshotgun        = 2,
+    weapon_assaultshotgun        = 2,
+    weapon_bullpupshotgun        = 2,
+    weapon_musket                = 2,
+    weapon_heavyshotgun          = 2,
+    weapon_dbshotgun             = 2,
+    weapon_autoshotgun           = 2,
+    weapon_pumpshotgun_mk2       = 2,
+    weapon_combatshotgun         = 2,
+    -- Assault Rifles class 4
+    weapon_assaultrifle          = 4,
+    weapon_assaultrifle_mk2      = 4,
+    weapon_carbinerifle          = 4,
+    weapon_carbinerifle_mk2      = 4,
+    weapon_advancedrifle         = 4,
+    weapon_specialcarbine        = 4,
+    weapon_bullpuprifle          = 4,
+    weapon_compactrifle          = 4,
+    weapon_specialcarbine_mk2    = 4,
+    weapon_bullpuprifle_mk2      = 4,
+    weapon_militaryrifle         = 4,
+    weapon_heavyrifle            = 4,
+    -- Light Machine Guns class 5
+    weapon_mg                    = 5,
+    weapon_combatmg              = 5,
+    weapon_gusenberg             = 5,
+    weapon_combatmg_mk2          = 5,
+    -- Sniper Rifles class 6
+    weapon_sniperrifle           = 6,
+    weapon_heavysniper           = 6,
+    weapon_marksmanrifle         = 6,
+    weapon_remotesniper          = 6,
+    weapon_heavysniper_mk2       = 6,
+    weapon_marksmanrifle_mk2     = 6,
+    -- Heavy Weapons class 7
+    weapon_rpg                   = 7,
+    weapon_grenadelauncher       = 7,
+    weapon_grenadelauncher_smoke = 7,
+    weapon_emplauncher           = 7,
+    weapon_minigun               = 7,
+    weapon_firework              = 7,
+    weapon_railgun               = 7,
+    weapon_hominglauncher        = 7,
+    weapon_compactlauncher       = 7,
+    weapon_rayminigun            = 7,
+    weapon_railgunxm3            = 7,
+    
+    -- Default class for any weapon not defined above
+    weapon_unarmed               = 1,
+}
+
+
 Config.DurabilityBlockedWeapons = {
     'weapon_stungun',
     'weapon_nightstick',

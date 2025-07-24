@@ -20,8 +20,13 @@ client_scripts {
 
 server_script 'server/main.lua'
 
+ui_page 'html/index.html'
+
 files {
-    'weaponsnspistol.meta'
+    'html/index.html',
+	'weaponsnspistol.meta',
+    'html/script.js'
 }
+
 
 data_file 'WEAPONINFO_FILE_PATCH' 'weaponsnspistol.meta'

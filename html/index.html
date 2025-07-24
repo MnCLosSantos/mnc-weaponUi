@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weapon HUD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #weaponHud {
+            display: none; /* Hidden by default */
+            position: absolute;
+            top: 40px; /* Moved to top edge */
+            left: 8px; /* Moved to left edge */
+        }
+        .neon-text {
+            color: #fff;
+            text-shadow:
+                0 0 5px #0ff,
+                0 0 10px #0ff,
+                0 0 20px #ff00ff,
+                0 0 40px #8000ff;
+            animation: neon-spin 4s linear infinite, neon-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes neon-spin {
+            0% {
+                text-shadow:
+                    0 0 5px #0ff,
+                    0 0 10px #0ff,
+                    0 0 20px #ff00ff,
+                    0 0 40px #8000ff;
+            }
+            25% {
+                text-shadow:
+                    0 0 5px #ff00ff,
+                    0 0 10px #ff00ff,
+                    0 0 20px #8000ff,
+                    0 0 40px #00f;
+            }
+            50% {
+                text-shadow:
+                    0 0 5px #8000ff,
+                    0 0 10px #8000ff,
+                    0 0 20px #00f,
+                    0 0 40px #ff00ff;
+            }
+            75% {
+                text-shadow:
+                    0 0 5px #00f,
+                    0 0 10px #00f,
+                    0 0 20px #0ff,
+                    0 0 40px #ff00ff;
+            }
+            100% {
+                text-shadow:
+                    0 0 5px #0ff,
+                    0 0 10px #0ff,
+                    0 0 20px #ff00ff,
+                    0 0 40px #8000ff;
+            }
+        }
+        @keyframes neon-pulse {
+            0%, 100% {
+                filter: brightness(100%);
+            }
+            50% {
+                filter: brightness(150%);
+            }
+        }
+    </style>
+</head>
+<body class="bg-transparent">
+    <div id="weaponHud" class="bg-gray-900 bg-opacity-20 rounded-lg p-4 flex items-center space-x-4 text-white shadow-lg">
+        <img id="weaponIcon" src="" alt="Weapon Icon" class="w-12 h-12 object-contain">
+        <div class="flex flex-col">
+            <span id="weaponName" class="text-lg font-bold neon-text"></span>
+            <span id="weaponClass" class="text-sm text-gray-300 neon-text"></span>
+            <span id="weaponAmmo" class="text-sm neon-text"></span>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
