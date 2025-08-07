@@ -35,9 +35,6 @@ QB-Weapons is a weapon management script for the QB-Core framework in FiveM. It 
    - Edit the `config.lua` file to set up:
      - `Config.WeaponRepairPoints`: Coordinates and settings for weapon repair locations.
      - `Config.WeaponRepairCosts`: Repair costs by weapon class (e.g., pistol, smg).
-     - `Config.DurabilityMultiplier`: Durability reduction rates for each weapon.
-     - `Config.DurabilityBlockedWeapons`: List of weapons exempt from durability reduction.
-     - `Config.Throwables`: List of throwable weapons (e.g., grenades).
 
 5. **Restart the Server**:
    - Restart your FiveM server or use `refresh` followed by `start qb-weapons` to load the script.
