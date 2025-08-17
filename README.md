@@ -9,7 +9,7 @@ QB-Weapons is a weapon management script for the QB-Core framework in FiveM. It 
 - Synth-Pulse Ui
 <img width="346" height="231" alt="synth-pulse" src="https://github.com/user-attachments/assets/e3a61e18-d1ce-4367-9afb-e63f4813229c" />
 
-- Cyan-Glow
+- Cyan-Glow Ui
 <img width="346" height="231" alt="cyan-glow" src="https://github.com/user-attachments/assets/ef8a7c76-35e5-48ac-960d-4bbbc266e009" />
 
 
