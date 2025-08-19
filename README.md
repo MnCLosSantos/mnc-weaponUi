@@ -5,7 +5,7 @@ QB-Weapons is a weapon management script for the QB-Core framework in FiveM. It 
 
 ## Features
 
-
+## To change ui simple replcae contents of style.css with the contents of the one you like.
 - Synth-Pulse Ui
 <img width="346" height="231" alt="synth-pulse" src="https://github.com/user-attachments/assets/e3a61e18-d1ce-4367-9afb-e63f4813229c" />
 
