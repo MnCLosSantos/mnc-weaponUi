@@ -1,0 +1,23 @@
+body { margin: 0; font-family: 'Poppins', sans-serif; }
+.hidden { display: none !important; }
+
+#weapon-ui {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(255,0,50,0.65), rgba(255,100,0,0.65));
+    border: 2px solid rgba(255,0,50,0.8);
+    box-shadow: 0 0 18px rgba(255,0,50,0.9);
+    color: #ffd6d6;
+    animation: redPulse 1.5s infinite alternate;
+}
+#weapon-ui img { width: 50px; height: 50px; margin-right: 10px; }
+#weapon-name { font-size: 14px; font-weight: 600; }
+#weapon-ammo { font-size: 12px; color: #ffcccc; }
+
+@keyframes redPulse {
+    from { box-shadow: 0 0 5px #ff0032; }
+    to { box-shadow: 0 0 10px #ff0032, 0 0 20px #ff0032; }
+}

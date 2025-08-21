@@ -1,0 +1,19 @@
+body { margin: 0; font-family: 'Poppins', sans-serif; }
+.hidden { display: none !important; }
+
+#weapon-ui {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.00);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.02);
+    color: white;
+    animation: fadeIn 0.4s ease;
+}
+#weapon-ui img { width: 50px; height: 50px; margin-right: 10px; }
+#weapon-name { font-weight: bold; font-size: 14px; }
+#weapon-ammo { font-size: 12px; opacity: 0.9; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
