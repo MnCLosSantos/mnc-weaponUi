@@ -8,18 +8,18 @@ version '1.1.0'
 
 shared_scripts {
     'config.lua',
-    'shared_ammo.lua'
+    --'shared_ammo.lua'
 }
 
 client_scripts {
     'client.lua',
-    'client_weapon_actions.lua'
+    --'client_weapon_actions.lua'
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server.lua',
-    'server_weapon_actions.lua'
+    --'server_weapon_actions.lua'
 }
 
 ui_page 'html/index.html'
@@ -33,4 +33,5 @@ files {
 dependencies {
     'oxmysql',
     'qb-core'
+
 }
