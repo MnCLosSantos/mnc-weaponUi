@@ -1,0 +1,1 @@
+this fxmanifest is for qb-ox (no reload/unload)
