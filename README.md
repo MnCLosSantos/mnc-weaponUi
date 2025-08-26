@@ -175,12 +175,12 @@ This resource is provided as-is for educational and server use purposes.
 
 ## Credits
 
-- **Author**: MNC Development
-- **Framework**: QBCore
+- **Author**: Stan Leigh
+- **Framework**: QBCore/QBOX
 - **Compatible with**: ox_inventory, qb-inventory
 
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: 2025
+**Last Updated**: 26/08/2025
 
