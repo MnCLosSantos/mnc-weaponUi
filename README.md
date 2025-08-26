@@ -169,16 +169,13 @@ For support, issues, or feature requests:
 - Verify all requirements are met
 - Test with default configuration first
 
-## License
-
-This resource is provided as-is for educational and server use purposes.
-
 ## Credits
 
 - **Author**: Stan Leigh
 - **Framework**: QBCore/QBOX
 - **Compatible with**: ox_inventory, qb-inventory
-
+- **Support**: **https://discord.gg/aTBsSZe5C6**
+  
 ---
 
 **Version**: 1.0.0  
