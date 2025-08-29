@@ -1,4 +1,5 @@
 # 🎯 MNC Weapon UI
+![wallpapersden com_k-grand-theft-auto-v-scenery_2048x1152](https://github.com/user-attachments/assets/a5da7a39-d329-4a97-ae82-6d10dd430517)
 
 A customizable weapon UI system for FiveM QBCore servers that displays the current weapon and ammo count with multiple style options and persistent player preferences.
 
@@ -109,19 +110,20 @@ The UI will automatically appear when you equip a weapon and disappear when you 
 ## 🖼️ Style Previews
 
 ### 🎨 Style 1
-<img width="1920" height="1080" alt="FiveM® by Cfx re 20_08_2025 11_20_16" src="https://github.com/user-attachments/assets/d9022dfe-0349-48b2-a277-2a3c98250c40" />
+<img width="320" height="133" alt="1" src="https://github.com/user-attachments/assets/aee4fc69-bb4a-47b4-b879-4b4bbf29286a" />
 
 ### 🎨 Style 2
-<img width="1920" height="1080" alt="FiveM® by Cfx re 20_08_2025 11_20_45" src="https://github.com/user-attachments/assets/d591cd77-1191-45c2-88ab-7db76ee2ec51" />
+<img width="320" height="133" alt="2" src="https://github.com/user-attachments/assets/73cd9e73-8acb-44b1-bd33-31e152817d04" />
 
 ### 🎨 Style 3
-<img width="1920" height="1080" alt="FiveM® by Cfx re 20_08_2025 11_20_57" src="https://github.com/user-attachments/assets/666abb25-a1aa-4595-bcf3-4e340ac5be78" />
+<img width="320" height="133" alt="3" src="https://github.com/user-attachments/assets/5f512dc7-d434-46f7-a2d7-b942ff2cecbb" />
 
 ### 🎨 Style 4
-<img width="1920" height="1080" alt="FiveM® by Cfx re 20_08_2025 11_21_05" src="https://github.com/user-attachments/assets/b65653ce-6437-4204-9d09-e4ebc519730d" />
+<img width="320" height="133" alt="4" src="https://github.com/user-attachments/assets/464bbc43-32cc-49cb-96cf-15b9582fdf87" />
 
 ### 🎨 Style 5
-<img width="1920" height="1080" alt="FiveM® by Cfx re 20_08_2025 11_21_11" src="https://github.com/user-attachments/assets/cb18c438-71b1-4ba2-8bf3-cfaba9553643" />
+<img width="320" height="133" alt="5" src="https://github.com/user-attachments/assets/8484f470-935e-4856-9175-d8161410f8e5" />
+
 
 ## 🛠️ Customization
 
