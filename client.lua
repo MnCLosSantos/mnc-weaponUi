@@ -94,7 +94,7 @@ function SendWeaponData()
     SendNUIMessage(data)
 end
 
--- Get weapon image from qb or ox inventory
+-- Get weapon image from qb, ox, or quasar inventory
 function GetWeaponImage(hash)
     local weaponInfo = QBCore.Shared.Weapons[hash]
     if not weaponInfo then return "" end
@@ -104,6 +104,8 @@ function GetWeaponImage(hash)
         return "nui://ox_inventory/web/images/" .. weaponName .. ".png"
     elseif Config.UseQbInventory then
         return "nui://qb-inventory/html/images/" .. weaponName .. ".png"
+    elseif Config.UseQuasarInventory then
+        return "nui://qs-inventory/html/images/" .. weaponName .. ".png"
     else
         return ""
     end
