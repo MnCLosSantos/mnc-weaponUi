@@ -14,6 +14,10 @@ Config.UI = {
 -- Command to switch UI style
 Config.StyleCommand = "weaponui"
 
+-- For the funky guys
+Config.UseQuasarInventory = false -- Set to true if using Quasar inventory
+
 -- Framework auto-detect
 Config.UseOxInventory = GetResourceState('ox_inventory') == 'started'
 Config.UseQbInventory = GetResourceState('qb-inventory') == 'started'
+
